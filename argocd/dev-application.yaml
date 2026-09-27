@@ -5,6 +5,9 @@ metadata:
   namespace: argocd
   labels:
     environment: dev
+    app.kubernetes.io/part-of: ops-master-pipeline
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
@@ -13,11 +16,11 @@ spec:
   source:
     repoURL: https://github.com/kushalsk99/ops-master-pipeline-argo-gitops.git
     targetRevision: HEAD
-    path: ops-master-pipeline-argo-gitops/kubernetes/overlays/dev
+    path: kubernetes/overlays/dev
 
   destination:
     server: https://kubernetes.default.svc
-    namespace: myapp-dev
+    namespace: web-service-dev
 
   syncPolicy:
     automated:
@@ -26,3 +29,9 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ApplyOutOfSyncOnly=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

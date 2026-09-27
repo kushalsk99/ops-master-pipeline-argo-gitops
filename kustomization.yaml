@@ -1,0 +1,8 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - argocd/linkerd-crds-application.yaml
+  - argocd/linkerd-control-plane-application.yaml
+  - argocd/dev-application.yaml
+  - argocd/prod-application.yaml

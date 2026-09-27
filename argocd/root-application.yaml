@@ -1,13 +1,11 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: myapp-prod
+  name: root-application
   namespace: argocd
   labels:
-    environment: prod
+    app.kubernetes.io/name: root-application
     app.kubernetes.io/part-of: ops-master-pipeline
-  annotations:
-    argocd.argoproj.io/sync-wave: "3"
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
@@ -16,11 +14,14 @@ spec:
   source:
     repoURL: https://github.com/kushalsk99/ops-master-pipeline-argo-gitops.git
     targetRevision: HEAD
-    path: kubernetes/overlays/prod
+    path: argocd
+    directory:
+      recurse: false
+      exclude: "{root-application.yaml}"
 
   destination:
     server: https://kubernetes.default.svc
-    namespace: web-service-prod
+    namespace: argocd
 
   syncPolicy:
     automated:

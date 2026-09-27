@@ -3,19 +3,26 @@ kind: Kustomization
 
 namespace: web-service-dev
 
-bases:
+resources:
+  - namespace.yaml
   - ../../base
 
 namePrefix: dev-
 
-commonLabels:
-  environment: dev
+labels:
+  - pairs:
+      environment: dev
 
 patches:
   - path: replica-patch.yaml
     target:
       kind: Deployment
       name: web-service
+
+images:
+  - name: us-central1-docker.pkg.dev/ops-master-project/app-services-repo-production/web-service
+    newName: us-central1-docker.pkg.dev/ops-master-project/app-services-repo-dev/web-service
+    newTag: dev-latest
 
 configMapGenerator:
   - name: web-service-config

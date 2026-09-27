@@ -3,19 +3,25 @@ kind: Kustomization
 
 namespace: web-service-prod
 
-bases:
+resources:
+  - namespace.yaml
   - ../../base
 
 namePrefix: prod-
 
-commonLabels:
-  environment: prod
+labels:
+  - pairs:
+      environment: prod
 
 patches:
   - path: replica-patch.yaml
     target:
       kind: Deployment
       name: web-service
+
+images:
+  - name: us-central1-docker.pkg.dev/ops-master-project/app-services-repo-production/web-service
+    newTag: v1.0.0
 
 configMapGenerator:
   - name: web-service-config

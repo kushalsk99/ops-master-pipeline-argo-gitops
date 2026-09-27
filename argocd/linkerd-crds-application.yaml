@@ -1,26 +1,26 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: myapp-prod
+  name: linkerd-crds
   namespace: argocd
   labels:
-    environment: prod
-    app.kubernetes.io/part-of: ops-master-pipeline
+    app.kubernetes.io/name: linkerd-crds
+    app.kubernetes.io/part-of: linkerd
   annotations:
-    argocd.argoproj.io/sync-wave: "3"
+    argocd.argoproj.io/sync-wave: "1"
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
 
   source:
-    repoURL: https://github.com/kushalsk99/ops-master-pipeline-argo-gitops.git
-    targetRevision: HEAD
-    path: kubernetes/overlays/prod
+    repoURL: https://helm.linkerd.io/stable
+    chart: linkerd-crds
+    targetRevision: 1.8.0
 
   destination:
     server: https://kubernetes.default.svc
-    namespace: web-service-prod
+    namespace: linkerd
 
   syncPolicy:
     automated:
@@ -29,6 +29,7 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ApplyOutOfSyncOnly=true
+      - Replace=true
     retry:
       limit: 5
       backoff:

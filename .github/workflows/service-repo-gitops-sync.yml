@@ -23,10 +23,10 @@ jobs:
       - name: Update dev image tag
         working-directory: gitops
         env:
-          IMAGE_NAME: <YOUR_IMAGE_NAME>   # e.g. ghcr.io/kushalsk99/my-service
+          IMAGE_NAME: us-central1-docker.pkg.dev/ops-master-project/app-services-repo-dev/web-service
           NEW_TAG: ${{ github.sha }}
         run: |
-          cd ops-master-pipeline-argo-gitops/kubernetes/overlays/dev
+          cd kubernetes/overlays/dev
 
           # Use kustomize if available, otherwise fall back to sed
           if command -v kustomize &> /dev/null; then
@@ -47,7 +47,7 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          git add ops-master-pipeline-argo-gitops/kubernetes/overlays/dev/kustomization.yaml
+          git add kubernetes/overlays/dev/kustomization.yaml
 
           # Only commit if there is an actual change
           git diff --cached --quiet || \

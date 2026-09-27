@@ -13,13 +13,18 @@ spec:
       app: web-service
   template:
     metadata:
+      annotations:
+        linkerd.io/inject: enabled
       labels:
         app: web-service
         app.kubernetes.io/name: web-service
     spec:
+      imagePullSecrets:
+        - name: gar-reader-secret
       containers:
         - name: web-service
-          image: web-service:latest
+          image: us-central1-docker.pkg.dev/ops-master-project/app-services-repo-production/web-service:v1.0.0
+          imagePullPolicy: IfNotPresent
           ports:
             - name: http
               containerPort: 8080
@@ -34,6 +39,13 @@ spec:
             limits:
               cpu: "500m"
               memory: "512Mi"
+          startupProbe:
+            httpGet:
+              path: /healthz/live
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            failureThreshold: 30
           readinessProbe:
             httpGet:
               path: /healthz/ready
