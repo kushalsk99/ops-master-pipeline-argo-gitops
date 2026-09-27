@@ -1,0 +1,56 @@
+name: Update GitOps Dev Image Tag
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  update-gitops:
+    name: Push new image tag to GitOps repo
+    runs-on: ubuntu-latest
+
+    steps:
+      # ── 1. Check out the GitOps repository ──────────────────────────────────
+      - name: Checkout GitOps repository
+        uses: actions/checkout@v4
+        with:
+          repository: kushalsk99/ops-master-pipeline-argo-gitops
+          token: ${{ secrets.GITOPS_PAT }}
+          path: gitops
+
+      # ── 2. Update the image tag in the dev overlay ──────────────────────────
+      - name: Update dev image tag
+        working-directory: gitops
+        env:
+          IMAGE_NAME: <YOUR_IMAGE_NAME>   # e.g. ghcr.io/kushalsk99/my-service
+          NEW_TAG: ${{ github.sha }}
+        run: |
+          cd ops-master-pipeline-argo-gitops/kubernetes/overlays/dev
+
+          # Use kustomize if available, otherwise fall back to sed
+          if command -v kustomize &> /dev/null; then
+            kustomize edit set image ${IMAGE_NAME}=${IMAGE_NAME}:${NEW_TAG}
+          else
+            sed -i "s|newTag:.*|newTag: ${NEW_TAG}|g" kustomization.yaml
+          fi
+
+          echo "Updated image tag to: ${NEW_TAG}"
+          cat kustomization.yaml
+
+      # ── 3. Commit and push the change ────────────────────────────────────────
+      - name: Commit and push image tag update
+        working-directory: gitops
+        env:
+          NEW_TAG: ${{ github.sha }}
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git add ops-master-pipeline-argo-gitops/kubernetes/overlays/dev/kustomization.yaml
+
+          # Only commit if there is an actual change
+          git diff --cached --quiet || \
+            git commit -m "chore: update dev image to ${NEW_TAG}"
+
+          git push

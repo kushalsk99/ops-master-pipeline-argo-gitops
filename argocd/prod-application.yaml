@@ -1,0 +1,28 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: myapp-prod
+  namespace: argocd
+  labels:
+    environment: prod
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+
+  source:
+    repoURL: https://github.com/kushalsk99/ops-master-pipeline-argo-gitops.git
+    targetRevision: HEAD
+    path: ops-master-pipeline-argo-gitops/kubernetes/overlays/prod
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: myapp-prod
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ApplyOutOfSyncOnly=true

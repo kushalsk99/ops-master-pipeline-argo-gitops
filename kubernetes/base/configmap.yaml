@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: web-service-config
+  labels:
+    app: web-service
+    app.kubernetes.io/name: web-service
+    app.kubernetes.io/part-of: ops-master-pipeline
+data:
+  APP_ENV: "base"
+  APP_PORT: "8080"
+  LOG_LEVEL: "info"
+  CACHE_TTL_SECONDS: "300"
